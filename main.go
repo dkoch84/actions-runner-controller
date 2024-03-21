@@ -88,6 +88,7 @@ func main() {
 		leaderElectionId         string
 		port                     int
 		syncPeriod               time.Duration
+		maxConcurrentReconciles	 int
 
 		defaultScaleDownDelay time.Duration
 
@@ -143,7 +144,9 @@ func main() {
 	flag.BoolVar(&autoScalingRunnerSetOnly, "auto-scaling-runner-set-only", false, "Make controller only reconcile AutoRunnerScaleSet object.")
 	flag.StringVar(&updateStrategy, "update-strategy", "immediate", `Resources reconciliation strategy on upgrade with running/pending jobs. Valid values are: "immediate", "eventual". Defaults to "immediate".`)
 	flag.Var(&autoScalerImagePullSecrets, "auto-scaler-image-pull-secrets", "The default image-pull secret name for auto-scaler listener container.")
+	flag.IntVar(&maxConcurrentReconciles, "max-concurrent-reconciles", 1, "The maximum number of concurrent reconciles for the managed controllers.")
 	flag.Parse()
+	
 
 	runnerPodDefaults.RunnerImagePullSecrets = runnerImagePullSecrets
 
@@ -232,6 +235,9 @@ func main() {
 				},
 			},
 		},
+		Controller: config.Controller{
+			MaxConcurrentReconciles: maxConcurrentReconciles,
+		}
 	})
 	if err != nil {
 		log.Error(err, "unable to start manager")
@@ -366,6 +372,7 @@ func main() {
 			"common-runnner-labels", commonRunnerLabels,
 			"leader-election-enabled", enableLeaderElection,
 			"leader-election-id", leaderElectionId,
+			"max-concurrent-reconciles", maxConcurrentReconciles,
 			"watch-namespace", namespace,
 		)
 
