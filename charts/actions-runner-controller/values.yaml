@@ -10,6 +10,11 @@ webhookPort: 9443
 syncPeriod: 1m
 defaultScaleDownDelay: 10m
 
+## This sets the MaxConcurrentReconciles in every controller managed by this controller manager
+## see https://github.com/actions/actions-runner-controller/issues/3021
+# controllerConfig:
+#   maxConcurrentReconciles: 1
+
 enableLeaderElection: true
 # Specifies the controller id for leader election.
 # Must be unique if more than one controller installed onto the same namespace.
